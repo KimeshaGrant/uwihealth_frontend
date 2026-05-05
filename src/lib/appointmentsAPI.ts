@@ -1,14 +1,25 @@
 import { API_BASE_URL } from "./api";
 
 export async function registerUser(data: any) {
+
   const res = await fetch(`${API_BASE_URL}/appointments/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
-  const result = await res.json();
-  if (!res.ok) throw new Error(result.error);
+  const text = await res.text();
+  console.log("REGISTER RAW RESPONSE:", text);
+
+  let result;
+  try {
+    result = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error("Server did not return valid JSON");
+  }
+
+  if (!res.ok) throw new Error(result.error || "Registration failed");
+
   return result;
 }
 

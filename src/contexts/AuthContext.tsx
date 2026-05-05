@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { loginUser } from "@/lib/appointmentsApi";
 
 export type UserRole = "patient" | "doctor" | "admin";
@@ -27,33 +27,61 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-const login = async (
-  email: string,
-  password: string,
-  role: UserRole
-): Promise<boolean> => {
-  try {
-    const result = await loginUser({ email, password });
+  //Restores user on refresh
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
 
-    setUser({
-      id: String(result.id),
-      name: `${result.fname} ${result.lname}`,
-      email: result.email,
-      role,
-    });
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (err) {
+        console.error("Invalid stored user", err);
+        localStorage.removeItem("user");
+      }
+    }
+  }, []);
 
-    return true;
-  } catch (err) {
-    console.error(err);
-    return false;
-  }
-};
+  const login = async (
+    email: string,
+    password: string,
+    role: UserRole
+  ): Promise<boolean> => {
+    try {
+      const result = await loginUser({ email, password, role });
 
-  const logout = () => setUser(null);
+      const userData = {
+        id: String(result.id),
+        name: `${result.fname} ${result.lname}`,
+        email: result.email,
+        role,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      setUser(userData);
+      setIsAuthenticated(true);
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("user"); 
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, isAuthenticated }}
+    >
       {children}
     </AuthContext.Provider>
   );

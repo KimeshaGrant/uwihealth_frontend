@@ -25,7 +25,7 @@ const LoginPage = () => {
       return;
     }
 
-    const uwiEmailRegex = /^[a-zA-Z0-9._%+-]+@(uwi\.edu|mona\.uwi\.edu|sta\.uwi\.edu|cavehill\.uwi\.edu)$/i;
+    const uwiEmailRegex = /^[a-zA-Z0-9._%+-]+@(uwi\.edu|mona\.uwi\.edu|mymona\.uwi\.edu)$/i;
     if (!uwiEmailRegex.test(email.trim())) {
       toast.error("Please enter a valid UWI email address (e.g. john.doe@uwi.edu).");
       return;
@@ -59,7 +59,7 @@ const LoginPage = () => {
             <h1 className="text-2xl font-semibold tracking-tight">UWI SmartQ</h1>
           </div>
           <p className="text-muted-foreground text-sm">
-            UWI Health Centre — Smart Booking & Queue Management
+            UWI Health Centre — Smart Booking & Queue Management System
           </p>
         </div>
 

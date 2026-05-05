@@ -40,3 +40,13 @@
 .read-the-docs {
   color: #888;
 }
+
+body, #root {
+  pointer-events: auto !important;
+}
+
+/* Prevent notification layers from blocking UI */
+[role="region"],
+[aria-label*="Notifications"] {
+  pointer-events: none !important;
+}
