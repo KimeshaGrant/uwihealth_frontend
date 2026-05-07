@@ -110,7 +110,7 @@ const ChatAssistant = () => {
             </Button>
           </div>
           <div className="flex gap-2 mt-3">
-            {["Check availability", "Wait times", "Clinic hours"].map((q) => (
+            {["Check availability", "Wait times", "Clinic hours", "Contact"].map((q) => (
               <Button key={q} variant="outline" size="sm" className="text-xs" onClick={() => { setInput(q); }}>
                 {q}
               </Button>
