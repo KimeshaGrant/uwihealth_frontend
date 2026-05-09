@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,25 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { bookAppointment } from "@/lib/appointmentsApi";
+import { bookAppointment, getDoctors } from "@/lib/appointmentsApi";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_BASE_URL } from "@/lib/api";
 
-const doctors = [
-  { id: "1", name: "Dr. B. M. Anglin-Brown", specialty: "Clinical Director", available: true },
-  { id: "2", name: "Dr. A. Standard-Goldson", specialty: "General Practice", available: true },
-  { id: "3", name: "Dr. J. Anthony", specialty: "General Practice", available: true },
-];
-
-const timeSlots = [
-  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "01:00 PM", "01:30 PM",
-  "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
-];
 
 const visitTypes: Record<string, string> = {
   general: "General Consultation",
   followup: "Follow-up Visit",
   mental: "Mental Health",
+  Dental: "Dental Checkup",
 };
 
 const BookAppointment = () => {
@@ -37,8 +28,18 @@ const BookAppointment = () => {
   const [visitType, setVisitType] = useState("");
   const [reason, setReason] = useState("");
   const [booked, setBooked] = useState(false);
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  
+  useEffect(() => {
+  const loadDoctors = async () => {
+    const data = await getDoctors();
+    setDoctors(data);
+  };
 
- 
+  loadDoctors();
+}, []);
+
   const convertTo24Hour = (time: string) => {
     const [t, modifier] = time.split(" ");
     let [hours, minutes] = t.split(":");
@@ -50,6 +51,39 @@ const BookAppointment = () => {
     return `${String(h).padStart(2, "0")}:${minutes}:00`;
   };
 
+  const fetchSlots = async () => {
+    if (!doctor || !date) return;
+
+    const formattedDate = date.toISOString().split("T")[0];
+
+    try {
+      const res = await fetch(
+  `${API_BASE_URL}/appointments/slots/${doctor}/${formattedDate}`
+      );
+
+      const data = await res.json();
+
+      const formatted = data.map((t: string) => {
+        const [h, m] = t.split(":");
+        let hour = parseInt(h);
+        const ampm = hour >= 12 ? "PM" : "AM";
+
+        if (hour > 12) hour -= 12;
+        if (hour === 0) hour = 12;
+
+        return `${String(hour).padStart(2, "0")}:${m} ${ampm}`;
+      });
+
+      setTimeSlots(formatted);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSlots();
+  }, [doctor, date]);
+
   const handleBook = async () => {
     if (!date || !doctor || !slot) {
       toast.error("Please fill all required fields");
@@ -57,25 +91,24 @@ const BookAppointment = () => {
     }
 
     if (!user) {
-       toast.error("You must be logged in to book an appointment");
-       return;
+      toast.error("You must be logged in to book an appointment");
+      return;
     }
-    
+
     try {
       const formattedDate = date.toISOString().split("T")[0];
       const time24 = convertTo24Hour(slot);
 
-    const result = await bookAppointment({
-    userId: Number(user.id),
-    doctorId: Number(doctor),
-    date: formattedDate,
-    time: time24,
-    duration: "00:20:00",
-    });
+      const result = await bookAppointment({
+        userId: Number(user.id),
+        doctorId: Number(doctor),
+        date: formattedDate,
+        time: time24,
+        duration: "00:20:00",
+      });
 
       setBooked(true);
       toast.success(result.message);
-
     } catch (err: any) {
       toast.error(err.message || "Booking failed");
     }
@@ -109,14 +142,12 @@ const BookAppointment = () => {
     );
   }
 
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Book Appointment</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Doctor */}
         <Card>
           <CardHeader>
             <CardTitle>Select Doctor</CardTitle>
@@ -130,28 +161,26 @@ const BookAppointment = () => {
                   doctor === doc.id ? "border-blue-500 bg-blue-50" : ""
                 }`}
               >
-                <p>{doc.name}</p>
-                <Badge>{doc.specialty}</Badge>
+                <div>
+              <p className="font-medium text-sm">{doc.name}</p>
+                 <span className="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-blue-500 text-white">
+                  {doc.speciality}
+               </span>
+               </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* Date */}
         <Card>
           <CardHeader>
             <CardTitle>Select Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-            />
+            <Calendar mode="single" selected={date} onSelect={setDate} />
           </CardContent>
         </Card>
 
-        {/* Time + Submit */}
         <Card>
           <CardHeader>
             <CardTitle>Select Time</CardTitle>
@@ -187,10 +216,7 @@ const BookAppointment = () => {
 
             <div className="mt-4">
               <Label>Notes</Label>
-              <Textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
+              <Textarea value={reason} onChange={(e) => setReason(e.target.value)} />
             </div>
 
             <Button className="w-full mt-4" onClick={handleBook}>
