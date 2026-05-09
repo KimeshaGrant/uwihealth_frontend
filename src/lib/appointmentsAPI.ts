@@ -66,13 +66,17 @@ export async function getMyAppointments(userId: number) {
   return result;
 }
 
-export async function cancelAppointmentApi(appointmentId: number) {
+export async function cancelAppointmentApi(data: {
+  appointmentId: number;
+  doctorId: number;
+  date: string;
+}) {
   const res = await fetch(`${API_BASE_URL}/appointments/cancel`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ appointmentId }),
+    body: JSON.stringify(data),
   });
 
   const result = await res.json();
@@ -150,3 +154,72 @@ export async function getWaitTime(doctorId: number, date: string) {
   if (!res.ok) throw new Error(result.error || "Failed to fetch wait time");
   return result;
 }
+
+export async function getDoctors() {
+  const res = await fetch(`${API_BASE_URL}/appointments/doctors`);
+  return res.json();
+}
+
+export async function getDoctorSchedule(doctorId: number, date: string) {
+  const res = await fetch(
+    `${API_BASE_URL}/appointments/doctor-schedule/${doctorId}/${date}`
+  );
+
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || "Failed to fetch schedule");
+  return result;
+}
+
+export async function updateStatus(data: {
+  apid: number;
+  status: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/appointments/update-status`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.error || "Status update failed");
+  }
+
+  return result;
+}
+
+export async function updateDoctorStatus(data: {
+  doctorId: number;
+  status: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/appointments/doctor-status`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.error || "Failed to update doctor status");
+  }
+
+  return result;
+}
+
+export async function getDoctorStatus(doctorId: number) {
+  const res = await fetch(`${API_BASE_URL}/appointments/doctor-status/${doctorId}`);
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.error || "Failed to fetch doctor status");
+  }
+
+  return result;
+}
+

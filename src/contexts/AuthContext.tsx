@@ -8,6 +8,7 @@ interface User {
   name: string;
   email: string;
   role: UserRole;
+  did?: Number; // Doctor ID for doctors
 }
 
 interface AuthContextType {
@@ -58,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: `${result.fname} ${result.lname}`,
         email: result.email,
         role,
+        did: result.did,
       };
 
       localStorage.setItem("user", JSON.stringify(userData));

@@ -34,7 +34,6 @@ const MyAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // dialog state
   const [showDialog, setShowDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -43,7 +42,7 @@ const MyAppointments = () => {
 
     try {
       const data = await getMyAppointments(Number(user.id));
-      setAppointments(data.appointments || []);
+      setAppointments(data || []);
     } catch (err: any) {
       toast.error(err.message || "Failed to load appointments");
     } finally {
@@ -64,14 +63,32 @@ const MyAppointments = () => {
   };
 
   const handleCancel = async () => {
-    if(!selectedId) return;
+    if (!selectedId) return;
+
+    const apt = appointments.find(a => a.apid === selectedId);
+    if (!apt) return;
+
     try {
-      await cancelAppointmentApi(selectedId);
+      await cancelAppointmentApi({
+        appointmentId: selectedId,
+        doctorId: apt.did,
+        date: apt.sdate
+      });
+
+      setAppointments(prev =>
+        prev.map(a =>
+          a.apid === selectedId
+            ? { ...a, is_canceled: true }
+            : a
+        )
+      );
+
       toast.success("Appointment cancelled");
-      loadAppointments();
+
     } catch (err: any) {
       toast.error(err.message || "Cancellation failed");
     }
+
     closeDialog();
   };
 
@@ -142,8 +159,8 @@ const MyAppointments = () => {
                 size="icon"
                 className="size-8 text-muted-foreground hover:text-destructive"
                 onClick={() => {
-                  setSelectedId(apt.apid); 
-                  setShowDialog(true); 
+                  setSelectedId(apt.apid);
+                  setShowDialog(true);
                 }}
               >
                 <X className="size-4" />
@@ -204,20 +221,19 @@ const MyAppointments = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
       {showDialog && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-        <div className="bg-white p-6 rounded-lg text-center space-y-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white p-6 rounded-lg text-center space-y-4">
+            <p>Are you sure you want to cancel this appointment?</p>
 
-          <p>Are you sure you want to cancel this appointment?</p>
-
-          <div className="flex justify-center gap-4">
-            <button onClick={handleCancel} className="bg-green-500 text-white px-4 py-2 rounded">Yes</button>
-            <button onClick={closeDialog} className="bg-red-500 text-white px-4 py-2 rounded">No</button>
-          </div> 
-
+            <div className="flex justify-center gap-4">
+              <button onClick={handleCancel} className="bg-green-500 text-white px-4 py-2 rounded">Yes</button>
+              <button onClick={closeDialog} className="bg-red-500 text-white px-4 py-2 rounded">No</button>
+            </div>
+          </div>
         </div>
-      </div>
-    )}
+      )}
     </div>
   );
 };
