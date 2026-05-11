@@ -11,6 +11,11 @@ import {
   cancelAppointmentApi,
   checkInPatient,
 } from "@/lib/appointmentsApi";
+import {
+  notifyCancel,
+  notifyCheckIn,
+  notifyError,
+} from "@/lib/notifications";
 
 interface Appointment {
   apid: number;
@@ -83,10 +88,10 @@ const MyAppointments = () => {
         )
       );
 
-      toast.success("Appointment cancelled");
+      notifyCancel();
 
     } catch (err: any) {
-      toast.error(err.message || "Cancellation failed");
+      notifyError(err.message || "Cancellation failed");
     }
 
     closeDialog();
@@ -106,9 +111,10 @@ const MyAppointments = () => {
         date: apt.sdate.split("T")[0],
       });
 
-      toast.success("Checked into queue");
+      notifyCheckIn();
+      
     } catch (err: any) {
-      toast.error(err.message || "Check-in failed");
+      notifyError(err.message || "Check-in failed");
     }
   };
 
