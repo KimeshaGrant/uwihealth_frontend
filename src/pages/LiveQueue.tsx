@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { Users } from "lucide-react";
-import { getQueue, getNowServing, getWaitTime } from "@/lib/appointmentsApi";
+import { getQueue, getNowServing, getWaitTime, getMyAppointments} from "@/lib/appointmentsApi";
 
 interface QueueEntry {
   queue_position: number;
@@ -28,7 +28,7 @@ const LiveQueue = () => {
   const [lastUpdated, setLastUpdated] = useState(Date.now()); 
   const [error, setError] = useState("");
 
-  const doctorId = Number(user?.did) || 1;
+  const doctorId = Number(user?.did);
   const today = new Date();
   const date =
     today.getFullYear() +
@@ -42,21 +42,46 @@ const LiveQueue = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const loadQueueData = async () => {
-    try {
-      setError("");
-      const queueRes = await getQueue(doctorId, date);
-      const nowServingRes = await getNowServing(doctorId, date);
-      const waitTimeRes = await getWaitTime(doctorId, date);
+ const loadQueueData = async () => {
+  try {
+    setError("");
 
-      setQueue(queueRes.queue || []);
-      setNowServing(nowServingRes.nowServing || null);
-      setWaitTime(waitTimeRes.estimatedWaitTime || 0);
-      setLastUpdated(Date.now()); 
-    } catch (err: any) {
-      setError(err.message || "Failed to load queue");
+    let activeDoctorId = doctorId;
+
+    if (user?.role === "patient") {
+      const myAppts = await getMyAppointments(Number(user.id));
+      console.log("APPOINTMENTS:", myAppts);
+      const active = myAppts.find(
+        (a: any) =>
+          a.status === "scheduled" 
+      );
+
+      if (!active) {
+        setError("No active appointment");
+        return;
+      }
+
+      activeDoctorId = active.did;
     }
-  };
+
+    if (!activeDoctorId) {
+      setError("Doctor not found");
+      return;
+    }
+
+    const queueRes = await getQueue(activeDoctorId, date);
+    const nowServingRes = await getNowServing(activeDoctorId, date);
+    const waitTimeRes = await getWaitTime(activeDoctorId, date);
+
+    setQueue(queueRes.queue || []);
+    setNowServing(nowServingRes.nowServing || null);
+    setWaitTime(waitTimeRes.estimatedWaitTime || 0);
+    setLastUpdated(Date.now());
+
+  } catch (err: any) {
+    setError(err.message || "Failed to load queue");
+  }
+};
 
   useEffect(() => {
     loadQueueData();
@@ -66,7 +91,7 @@ const LiveQueue = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
 
   const waiting = queue.filter(
     (q) => q.queue_position !== nowServing?.queue_position

@@ -12,7 +12,9 @@ const Dashboard = () => {
   const [avgWait, setAvgWait] = useState(0);
   const [schedule, setSchedule] = useState([]);
 
-  const doctorId = Number(user?.did) || 1;
+  const doctorId = Number(user?.did);
+console.log("USER:", user);
+console.log("DOCTOR ID:", doctorId);
 
   const today = new Date();
   const date =
