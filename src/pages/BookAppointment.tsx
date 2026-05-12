@@ -18,6 +18,7 @@ const visitTypes: Record<string, string> = {
   followup: "Follow-up Visit",
   mental: "Mental Health",
   Dental: "Dental Checkup",
+  Medical: "Medical Consultation"
 };
 
 const BookAppointment = () => {
@@ -210,6 +211,8 @@ const BookAppointment = () => {
                   <SelectItem value="general">General</SelectItem>
                   <SelectItem value="followup">Follow-up</SelectItem>
                   <SelectItem value="mental">Mental Health</SelectItem>
+                  <SelectItem value="Dental">Dental</SelectItem>
+                  <SelectItem value="Medical">Medical</SelectItem>
                 </SelectContent>
               </Select>
             </div>

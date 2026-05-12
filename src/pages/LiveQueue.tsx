@@ -26,6 +26,10 @@ const LiveQueue = () => {
   const [waitTime, setWaitTime] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [lastUpdated, setLastUpdated] = useState(Date.now()); 
+  const [selectedDoctor, setSelectedDoctor] = useState<number | null>(() => {
+  const saved = localStorage.getItem("selectedDoctor");
+  return saved ? Number(saved) : null;
+});
   const [error, setError] = useState("");
 
   const doctorId = Number(user?.did);
@@ -46,23 +50,37 @@ const LiveQueue = () => {
   try {
     setError("");
 
-    let activeDoctorId = doctorId;
+  let activeDoctorId = doctorId;
 
-    if (user?.role === "patient") {
-      const myAppts = await getMyAppointments(Number(user.id));
-      console.log("APPOINTMENTS:", myAppts);
-      const active = myAppts.find(
-        (a: any) =>
-          a.status === "scheduled" 
-      );
+//PATIENT Check - find their active appointment and use that doctor ID instead of their own
+if (user?.role === "patient") {
+  const myAppts = await getMyAppointments(Number(user.id));
 
-      if (!active) {
-        setError("No active appointment");
-        return;
-      }
+  const active = myAppts.find(
+    (a: any) => a.status === "scheduled"
+  );
 
-      activeDoctorId = active.did;
-    }
+  if (!active) {
+    setError("No active appointment");
+    return;
+  }
+
+  activeDoctorId = active.did;
+}
+
+// ADMIN Check - if they have selected a doctor, use that instead of their own ID
+if (user?.role === "admin") {
+  activeDoctorId = selectedDoctor;
+}
+
+if (!activeDoctorId) {
+  if (user?.role === "admin") {
+    setError("Please select a doctor to view their queue.");
+  } else {
+    setError("Doctor not found!");
+  }
+  return;
+}
 
     if (!activeDoctorId) {
       setError("Doctor not found");
@@ -74,8 +92,18 @@ const LiveQueue = () => {
     const waitTimeRes = await getWaitTime(activeDoctorId, date);
 
     setQueue(queueRes.queue || []);
+    const queueData = queueRes.queue || [];
+
+const avgWait =
+  queueData.length > 0
+    ? Math.round(
+        queueData.reduce((sum, item) => sum + item.estimatedWait, 0) /
+        queueData.length
+      )
+    : 0;
+
+setWaitTime(avgWait);
     setNowServing(nowServingRes.nowServing || null);
-    setWaitTime(waitTimeRes.estimatedWaitTime || 0);
     setLastUpdated(Date.now());
 
   } catch (err: any) {
@@ -91,7 +119,7 @@ const LiveQueue = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, selectedDoctor]);
 
   const waiting = queue.filter(
     (q) => q.queue_position !== nowServing?.queue_position
@@ -104,6 +132,30 @@ const LiveQueue = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {user?.role === "admin" && (
+  <div className="mb-4">
+    <select
+      className="border p-2 rounded"
+      value={selectedDoctor || ""}
+      onChange={(e) => {
+  const value = e.target.value ? Number(e.target.value) : null;
+  setSelectedDoctor(value);
+
+  if (value) {
+    localStorage.setItem("selectedDoctor", value.toString());
+  } else {
+    localStorage.removeItem("selectedDoctor");
+  }
+}}
+    >
+      <option value="">Select Doctor</option>
+      <option value="1">Dr. Anglin Brown</option>
+      <option value="2">Dr. John Anthony</option>
+      <option value="3">Dr. Kelly Reid</option>
+      <option value="34">Dr. Sarah Williams</option>
+    </select>
+  </div>
+)}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">

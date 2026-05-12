@@ -57,13 +57,13 @@ const AdminSettings = () => {
               </div>
               <Switch defaultChecked />
             </div>
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">SMS Reminders</p>
                 <p className="text-xs text-muted-foreground">24h before appointment</p>
               </div>
               <Switch defaultChecked />
-            </div>
+            </div> */}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Waitlist Promotion</p>
