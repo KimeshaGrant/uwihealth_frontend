@@ -62,7 +62,7 @@ const botResponses: Record<string, string> = {
   • Individual counselling
   • Group counselling
   • Other educational programmes addressing the issues listed above`,
-  clinic: 
+  dental: 
   `🧑‍⚕️ The Dental Clinic:  
   This clinic offers high-quality dental care at a low cost for students. The annual fee ($2,415 for the 2007/08 academic year) is included in students' miscellaneous fees and covers a range of services.
   
@@ -100,7 +100,7 @@ const ChatAssistant = () => {
     setTimeout(() => {
       const lower = input.toLowerCase();
       
-      let response = "I'm not sure I understand. You can ask me about booking appointments, checking availability, wait times, clinic hours, as well as heath services, cancellation policies, contact or location information.";
+      let response = "I'm not sure I understand. You can ask me about booking appointments, checking availability, wait times, clinic hours, as well as health services, cancellation policies, contact or location information.";
       
       for (const [key, val] of Object.entries(botResponses)) {
         if (lower.includes(key)) {
