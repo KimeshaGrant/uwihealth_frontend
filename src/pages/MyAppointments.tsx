@@ -108,7 +108,7 @@ const MyAppointments = () => {
         userId: Number(user.id),
         appointmentId: apt.apid,
         doctorId: apt.did,
-        date: apt.sdate,
+        date: apt.sdate.split("T")[0],
       });
 
       notifyCheckIn();

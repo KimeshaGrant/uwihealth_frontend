@@ -15,6 +15,7 @@ import LiveQueue from "@/pages/LiveQueue";
 import ChatAssistant from "@/pages/ChatAssistant";
 import DoctorSchedule from "@/pages/DoctorSchedule";
 import Analytics from "@/pages/Analytics";
+import Doctors from "./pages/Doctors";
 import AdminSettings from "@/pages/AdminSettings";
 import NotFound from "@/pages/NotFound";
 
@@ -54,7 +55,7 @@ const AppRoutes = () => {
       <Route path="/schedule" element={<ProtectedRoute><DoctorSchedule /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
-      <Route path="/doctors" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/doctors" element={<ProtectedRoute><Doctors /></ProtectedRoute>} />
       <Route path="/patients" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

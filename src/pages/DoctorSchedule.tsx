@@ -13,7 +13,7 @@ const DoctorSchedule = () => {
   const [doctorStatus, setDoctorStatus] = useState("Available");
 
   const { user } = useAuth();
-  const doctorId = Number(user?.did) || 1;
+  const doctorId = Number(user?.did);
 
   const today = new Date();
   const date =

@@ -4,11 +4,11 @@ import { loginUser } from "@/lib/appointmentsApi";
 export type UserRole = "patient" | "doctor" | "admin";
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: UserRole;
-  did?: Number; // Doctor ID for doctors
+  did?: number; // Doctor ID for doctors
 }
 
 interface AuthContextType {
@@ -55,10 +55,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const result = await loginUser({ email, password, role });
 
       const userData = {
-        id: String(result.id),
+        id: result.id,
         name: `${result.fname} ${result.lname}`,
         email: result.email,
-        role,
+        role: result.role,
         did: result.did,
       };
 
@@ -73,6 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
   };
+
 
   const logout = () => {
     setUser(null);

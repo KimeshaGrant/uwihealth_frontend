@@ -123,7 +123,7 @@ const ChatAssistant = () => {
     <div className="space-y-6 animate-fade-in h-[calc(100vh-8rem)] flex flex-col">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <MessageSquare className="size-6 text-primary" /> AI Assistant
+          <MessageSquare className="size-7 text-primary" /> AI Assistant
         </h1>
         <p className="text-muted-foreground mt-1">Ask about bookings, availability, wait times, and more.</p>
       </div>
@@ -160,7 +160,7 @@ const ChatAssistant = () => {
               <Send className="size-4" />
             </Button>
           </div>
-          <div className="flex gap-2 mt-3">
+           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {["Check availability", "Wait times", "Clinic hours", "Eligible Users", "Nursing Services", "Counselling Services", "Dental Clinic", "Contact", "Location"].map((q) => (
               <Button key={q} variant="outline" size="sm" className="text-xs" onClick={() => { setInput(q); }}>
                 {q}

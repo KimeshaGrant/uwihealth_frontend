@@ -18,12 +18,13 @@ const visitTypes: Record<string, string> = {
   followup: "Follow-up Visit",
   mental: "Mental Health",
   Dental: "Dental Checkup",
+  Medical: "Medical Consultation"
 };
 
 const BookAppointment = () => {
   const { user } = useAuth();
   const [date, setDate] = useState<Date | undefined>();
-  const [doctor, setDoctor] = useState("");
+  const [doctor, setDoctor] = useState<number | null>(null);
   const [slot, setSlot] = useState("");
   const [visitType, setVisitType] = useState("");
   const [reason, setReason] = useState("");
@@ -52,7 +53,7 @@ const BookAppointment = () => {
   };
 
   const fetchSlots = async () => {
-    if (!doctor || !date) return;
+    if (doctor === null || !date) return;
 
     const formattedDate = date.toISOString().split("T")[0];
 
@@ -85,7 +86,7 @@ const BookAppointment = () => {
   }, [doctor, date]);
 
   const handleBook = async () => {
-    if (!date || !doctor || !slot) {
+    if (!date || doctor === null || !slot) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -98,10 +99,10 @@ const BookAppointment = () => {
     try {
       const formattedDate = date.toISOString().split("T")[0];
       const time24 = convertTo24Hour(slot);
-
+      console.log("BOOKING WITH DOCTOR ID:", doctor);
       const result = await bookAppointment({
         userId: Number(user.id),
-        doctorId: Number(doctor),
+        doctorId: doctor,
         date: formattedDate,
         time: time24,
         duration: "00:20:00",
@@ -128,7 +129,7 @@ const BookAppointment = () => {
               onClick={() => {
                 setBooked(false);
                 setDate(undefined);
-                setDoctor("");
+                setDoctor(null);
                 setSlot("");
                 setVisitType("");
                 setReason("");
@@ -156,9 +157,9 @@ const BookAppointment = () => {
             {doctors.map((doc) => (
               <div
                 key={doc.id}
-                onClick={() => setDoctor(doc.id)}
+                onClick={() => setDoctor(Number(doc.id))}
                 className={`p-3 border rounded mb-2 cursor-pointer ${
-                  doctor === doc.id ? "border-blue-500 bg-blue-50" : ""
+                  doctor === Number(doc.id) ? "border-blue-500 bg-blue-50" : ""
                 }`}
               >
                 <div>
@@ -210,6 +211,8 @@ const BookAppointment = () => {
                   <SelectItem value="general">General</SelectItem>
                   <SelectItem value="followup">Follow-up</SelectItem>
                   <SelectItem value="mental">Mental Health</SelectItem>
+                  <SelectItem value="Dental">Dental</SelectItem>
+                  <SelectItem value="Medical">Medical</SelectItem>
                 </SelectContent>
               </Select>
             </div>
