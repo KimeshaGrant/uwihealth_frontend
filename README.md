@@ -19,7 +19,7 @@ The proposed system will provide the following major functionalities:
  
 
 ## Team Member Names
-- Danielle Tulloch 
-- Kimesha Grant 
-- Marissa O'Meally 
-- Andre Trail 
+- Danielle Tulloch - Project Manager & Scheduling Systems Architect
+- Kimesha Grant - Data Analytics Engineer
+- Marissa O'Meally - AI & Automation Engineer
+- Andre Trail - Backend Systems Architect
