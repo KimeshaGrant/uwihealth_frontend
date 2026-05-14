@@ -18,8 +18,8 @@ The proposed system will provide the following major functionalities:
 - AI-powered chatbot for user assistance and system navigation
  
 
-## Team Member Names and Roles
-- Danielle Tulloch - Scheduling Systems Architect
-- Kimesha Grant - Data Analytics Engineer
-- Marissa O'Meally - AI & Automation Engineer
-- Andre Trail - Backend Systems Architect 
+## Team Member Names
+- Danielle Tulloch 
+- Kimesha Grant 
+- Marissa O'Meally 
+- Andre Trail 
