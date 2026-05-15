@@ -22,4 +22,4 @@ The proposed system will provide the following major functionalities:
 - Danielle Tulloch - Project Manager & Scheduling Systems Architect
 - Kimesha Grant - Data Analytics Engineer
 - Marissa O'Meally - AI & Automation Engineer
-- Andre Trail - Backend Systems Architect
+- Andre Traill - Backend Systems Architect
